@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แอปออมเงิน Smart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap');
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: all 0.3s ease;
+        }
+        
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e2e8f0;
+        }
+        
+        .dark-mode .ai-card {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            color: #e2e8f0;
+        }
+        
+        .dark-mode .gradient-bg {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        }
+        
+        .dark-mode .ai-input {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+        
+        .dark-mode .ai-input:focus {
+            background: rgba(30, 41, 59, 1);
+            border-color: var(--primary-color);
+        }
+        
+        .dark-mode .text-gray-800 {
+            color: #e2e8f0 !important;
+        }
+        
+        .dark-mode .text-gray-600 {
+            color: #94a3b8 !important;
+        }
+        
+        .dark-mode .text-gray-500 {
+            color: #64748b !important;
+        }
+        
+        .dark-mode .bg-white {
+            background: rgba(30, 41, 59, 0.95) !important;
+        }
+        
+        .dark-mode .border-gray-200 {
+            border-color: #475569 !important;
+        }
+        
+        .dark-mode .bg-gray-50 {
+            background: rgba(51, 65, 85, 0.5) !important;
+        }
+        
+        .dark-mode .bg-blue-50 {
+            background: rgba(30, 58, 138, 0.2) !important;
+        }
+        
+        .dark-mode .ai-stat-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(51, 65, 85, 0.9));
+            border: 1px solid rgba(71, 85, 105, 0.3);
+        }
+        .gradient-bg { 
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); 
+        }
+        .card-shadow { 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .glass-effect {
+            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .switch { 
+            position: relative; 
+            display: inline-block; 
+            width: 60px; 
+            height: 34px; 
+        }
+        .switch input { 
+            opacity: 0; 
+            width: 0; 
+            height: 0; 
+        }
+        .slider { 
+            position: absolute; 
+            cursor: pointer; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0; 
+            background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            border-radius: 34px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .slider:before { 
+            position: absolute; 
+            content: ""; 
+            height: 26px; 
+            width: 26px; 
+            left: 4px; 
+            bottom: 4px; 
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        input:checked + .slider { 
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+        input:checked + .slider:before { 
+            transform: translateX(26px); 
+        }
+        .ai-button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .ai-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .ai-button:active {
+            transform: translateY(0);
+        }
+        .ai-input {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+        }
+        .ai-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background: rgba(255, 255, 255, 1);
+        }
+        .ai-card {
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .nav-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+        }
+        .nav-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+        .period-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+            font-weight: 600;
+            letter-spacing: 0.025em;
+        }
+        .period-btn:hover {
+            transform: translateY(-1px);
+        }
+        .ai-stat-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,250,252,0.9));
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .ai-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white p-4 sticky top-0 z-50 glass-effect">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-tight">💰 แอปออมเงิน Smart</h1>
+            <div class="text-sm font-medium" id="currentDateTime"></div>
+        </div>
+    </nav>
+
+    <!-- Bottom Navigation -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-200/50 z-50">
+        <div class="max-w-md mx-auto flex justify-around py-2">
+            <button onclick="showPage('home')" class="nav-btn flex flex-col items-center p-3 text-purple-600" id="nav-home">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span class="text-xs mt-1 font-medium">หน้าหลัก</span>
+            </button>
+            <button onclick="showPage('graph')" class="nav-btn flex flex-col items-center p-3 text-gray-400" id="nav-graph">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                </svg>
+                <span class="text-xs mt-1 font-medium">กราฟ</span>
+            </button>
+            <button onclick="showPage('list')" class="nav-btn flex flex-col items-center p-3 text-gray-400" id="nav-list">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+                </svg>
+                <span class="text-xs mt-1 font-medium">รายการ</span>
+            </button>
+            <button onclick="showPage('goals')" class="nav-btn flex flex-col items-center p-3 text-gray-400" id="nav-goals">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                <span class="text-xs mt-1 font-medium">เป้าหมาย</span>
+            </button>
+            <button onclick="showPage('settings')" class="nav-btn flex flex-col items-center p-3 text-gray-400" id="nav-settings">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                </svg>
+                <span class="text-xs mt-1 font-medium">ตั้งค่า</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="max-w-md mx-auto pb-20 pt-4">
+        
+        <!-- หน้าหลัก -->
+        <div id="home-page" class="page px-4">
+            <!-- ยอดเงินออมทั้งหมด -->
+            <div class="gradient-bg text-white rounded-3xl p-6 mb-6 card-shadow">
+                <h2 class="text-lg font-semibold mb-2 tracking-tight">💰 ยอดเงินออมทั้งหมด</h2>
+                <div class="text-4xl font-bold tracking-tight" id="totalSavings">฿0</div>
+                <div class="text-sm opacity-90 mt-2 font-medium">อัพเดทล่าสุด: <span id="lastUpdate">วันนี้</span></div>
+            </div>
+
+            <!-- ฟอร์มออมเงิน -->
+            <div class="ai-card p-6 card-shadow mb-6">
+                <h3 class="text-lg font-bold mb-4 text-gray-800 tracking-tight">✨ เพิ่มการออมเงิน</h3>
+                
+                <form id="savingsForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">จำนวนเงิน (บาท)</label>
+                        <input type="number" id="amount" class="w-full p-4 ai-input focus:outline-none font-medium" placeholder="0" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">หมวดหมู่</label>
+                        <select id="category" class="w-full p-4 ai-input focus:outline-none font-medium" required>
+                            <option value="">เลือกหมวดหมู่</option>
+                            <option value="เงินเดือน">💼 เงินเดือน</option>
+                            <option value="เงินพิเศษ">💰 เงินพิเศษ</option>
+                            <option value="ขายของ">🛍️ ขายของ</option>
+                            <option value="ลงทุน">📈 ลงทุน</option>
+                            <option value="อื่นๆ">📝 อื่นๆ</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" id="saveButton" class="w-full ai-button py-4 font-bold tracking-tight">
+                        ✅ บันทึกการออม
+                    </button>
+                    
+                    <!-- แสดงเมื่อออฟไลน์ -->
+                    <div id="offlineWarning" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
+                        <div class="text-amber-700 font-semibold text-sm">📱 โหมดออฟไลน์ - ไม่สามารถบันทึกได้</div>
+                    </div>
+                </form>
+            </div>
+
+
+        </div>
+
+        <!-- หน้ารายการ -->
+        <div id="list-page" class="page px-4 hidden">
+            <div class="ai-card p-6 card-shadow">
+                <h2 class="text-lg font-bold mb-4 text-gray-800 tracking-tight">📋 รายการออมทั้งหมด</h2>
+                <div id="allSavings" class="space-y-3">
+                    <div class="text-gray-500 text-center py-4 font-medium">ยังไม่มีรายการออม</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- หน้ากราฟ -->
+        <div id="graph-page" class="page px-4 hidden">
+            <div class="ai-card p-6 card-shadow mb-6">
+                <h2 class="text-lg font-bold mb-4 text-gray-800 tracking-tight">📊 กราฟการออม</h2>
+                
+                <!-- ปุ่มเลือกช่วงเวลา -->
+                <div class="flex space-x-2 mb-6">
+                    <button onclick="changeChartPeriod('day')" class="period-btn px-4 py-2 bg-purple-600 text-white text-sm" id="day-btn">รายวัน</button>
+                    <button onclick="changeChartPeriod('week')" class="period-btn px-4 py-2 bg-gray-200 text-gray-700 text-sm" id="week-btn">รายสัปดาห์</button>
+                    <button onclick="changeChartPeriod('month')" class="period-btn px-4 py-2 bg-gray-200 text-gray-700 text-sm" id="month-btn">รายเดือน</button>
+                </div>
+                
+                <div class="h-64">
+                    <canvas id="savingsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- สถิติการออม -->
+            <div class="ai-card p-6 card-shadow">
+                <h3 class="text-lg font-bold mb-4 text-gray-800 tracking-tight">📈 สถิติการออม</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="ai-stat-card text-center p-4">
+                        <div class="text-2xl font-bold text-green-600" id="avgDaily">฿0</div>
+                        <div class="text-sm text-gray-600 font-medium">เฉลี่ยต่อวัน</div>
+                    </div>
+                    <div class="ai-stat-card text-center p-4">
+                        <div class="text-2xl font-bold text-blue-600" id="thisMonth">฿0</div>
+                        <div class="text-sm text-gray-600 font-medium">เดือนนี้</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- หน้าเป้าหมาย -->
+        <div id="goals-page" class="page px-4 hidden">
+            <div class="ai-card p-6 card-shadow mb-6">
+                <h2 class="text-lg font-bold mb-4 text-gray-800 tracking-tight">🎯 เป้าหมายการออม</h2>
+                
+                <!-- Cloud Pocket -->
+                <div class="gradient-bg text-white rounded-2xl p-4 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-bold tracking-tight">☁️ Cloud Pocket</h3>
+                            <p class="text-sm opacity-90 font-medium">เป้าหมายออมเงินอัตโนมัติ</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xl font-bold tracking-tight" id="cloudProgress">฿0</div>
+                            <div class="text-xs opacity-80 font-medium">จาก ฿10,000</div>
+                        </div>
+                    </div>
+                    <div class="mt-3 bg-white bg-opacity-20 rounded-full h-2">
+                        <div class="bg-white rounded-full h-2 transition-all duration-500" id="cloudProgressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- เพิ่มเป้าหมายใหม่ -->
+                <form id="goalForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">ชื่อเป้าหมาย</label>
+                        <input type="text" id="goalName" class="w-full p-4 ai-input focus:outline-none font-medium" placeholder="เช่น ซื้อโทรศัพท์ใหม่" required>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">จำนวนเงินเป้าหมาย (บาท)</label>
+                        <input type="number" id="goalAmount" class="w-full p-4 ai-input focus:outline-none font-medium" placeholder="0" required>
+                    </div>
+                    
+                    <button type="submit" id="goalButton" class="w-full ai-button py-4 font-bold tracking-tight">
+                        ➕ เพิ่มเป้าหมาย
+                    </button>
+                    
+                    <!-- แสดงเมื่อออฟไลน์ -->
+                    <div id="goalOfflineWarning" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
+                        <div class="text-amber-700 font-semibold text-sm">📱 โหมดออฟไลน์ - ไม่สามารถเพิ่มเป้าหมายได้</div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- รายการเป้าหมาย -->
+            <div class="ai-card p-6 card-shadow">
+                <h3 class="text-lg font-bold mb-4 text-gray-800 tracking-tight">📋 เป้าหมายทั้งหมด</h3>
+                <div id="goalsList" class="space-y-4">
+                    <div class="text-gray-500 text-center py-4 font-medium">ยังไม่มีเป้าหมาย</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- หน้าตั้งค่า -->
+        <div id="settings-page" class="page px-4 hidden">
+            <div class="ai-card p-6 card-shadow mb-6">
+                <h2 class="text-lg font-bold mb-6 text-gray-800 tracking-tight">⚙️ ตั้งค่า</h2>
+                
+                <!-- สวิทช์ออนไลน์/ออฟไลน์ -->
+                <div class="flex items-center justify-between py-4 border-b border-gray-100">
+                    <div>
+                        <h3 class="font-semibold text-gray-800 tracking-tight">🌐 โหมดออนไลน์</h3>
+                        <p class="text-sm text-gray-500 font-medium">เชื่อมต่อกับ Cloud Pocket</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="onlineSwitch" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <!-- สถานะการเชื่อมต่อ -->
+                <div class="py-4 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-green-500 rounded-full mr-3" id="connectionStatus"></div>
+                        <span class="text-sm font-semibold" id="connectionText">เชื่อมต่อแล้ว</span>
+                    </div>
+                </div>
+
+                <!-- โหมดออฟไลน์ -->
+                <div class="py-4 border-b border-gray-100" id="offlineSection" style="display: none;">
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                        <div class="flex items-center mb-2">
+                            <div class="text-2xl mr-3">📱</div>
+                            <div>
+                                <h3 class="font-bold text-amber-800 tracking-tight">โหมดออฟไลน์</h3>
+                                <p class="text-sm text-amber-700 font-medium">ระบบทำงานแบบจำกัด</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-amber-600 font-medium">• ไม่สามารถซิงค์ข้อมูลกับ Cloud ได้</p>
+                        <p class="text-xs text-amber-600 font-medium">• ฟีเจอร์บางส่วนไม่ทำงาน</p>
+                    </div>
+                </div>
+
+                <!-- ธีมสีประจำวัน -->
+                <div class="py-4 border-b border-gray-100">
+                    <h3 class="font-semibold text-gray-800 mb-2 tracking-tight">🎨 ธีมประจำวัน</h3>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded-full mr-3" style="background: var(--primary-color)"></div>
+                        <span class="text-sm text-gray-600 font-medium" id="currentTheme">กำลังโหลด...</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1 font-medium">ธีมสีเปลี่ยนอัตโนมัติ</p>
+                </div>
+
+                <!-- เวอร์ชั่น -->
+                <div class="py-4">
+                    <h3 class="font-semibold text-gray-800 mb-2 tracking-tight">🚀 เวอร์ชั่นปัจจุบัน</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600 font-semibold">v2.4.0</span>
+                        <span class="text-xs bg-green-100 text-green-800 px-3 py-1 rounded-full font-bold">Smart Enhanced</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1 font-medium" id="updateDate">อัพเดทล่าสุด: วันนี้</p>
+                </div>
+            </div>
+
+            <!-- ข้อมูลแอป -->
+            <div class="ai-card p-6 card-shadow">
+                <h3 class="text-lg font-bold mb-4 text-gray-800 tracking-tight">🤖 เกี่ยวกับแอป</h3>
+                <div class="space-y-3 text-sm text-gray-600 font-medium">
+                    <p>💰 แอปออมเงิน Smart ที่ช่วยวิเคราะห์การออมอัจฉริยะ</p>
+                    <p>📊 กราฟและสถิติแบบเรียลไทม์ด้วยเทคโนโลยีสมัยใหม่</p>
+                    <p>🎯 ตั้งเป้าหมายและติดตามความคืบหน้า</p>
+                    <p>☁️ ซิงค์ข้อมูลกับ Cloud Pocket</p>
+                    <p>🔄 ระบบเก็บข้อมูลเก่า/ใหม่แบบถาวร</p>
+                    <p>🌙 Dark Mode อัตโนมัติถนอมสายตา</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ข้อมูลแอป
+        let savingsData = JSON.parse(localStorage.getItem('savingsData')) || [];
+        let oldSavingsData = JSON.parse(localStorage.getItem('oldSavingsData')) || []; // ข้อมูลเก่าที่ไม่หาย
+        let goalsData = JSON.parse(localStorage.getItem('goalsData')) || [];
+        let totalSavings = parseFloat(localStorage.getItem('totalSavings')) || 0;
+        let currentChart = null;
+        let currentPeriod = 'day';
+        let isOnlineMode = JSON.parse(localStorage.getItem('isOnlineMode')) !== false; // default true
+
+        // ธีมสีประจำวัน (7 วัน) - AI Enhanced
+        const dailyThemes = [
+            { primary: '#667eea', secondary: '#764ba2', name: 'วันอาทิตย์ - Neural Purple' }, // อาทิตย์
+            { primary: '#ffeaa7', secondary: '#fab1a0', name: 'วันจันทร์ - Quantum Gold' }, // จันทร์
+            { primary: '#fd79a8', secondary: '#e84393', name: 'วันอังคาร - Cyber Pink' }, // อังคาร
+            { primary: '#00b894', secondary: '#00a085', name: 'วันพุธ - AI Mint' }, // พุธ
+            { primary: '#fdcb6e', secondary: '#e17055', name: 'วันพฤหัสบดี - Digital Orange' }, // พฤหัส
+            { primary: '#6c5ce7', secondary: '#a29bfe', name: 'วันศุกร์ - Tech Violet' }, // ศุกร์
+            { primary: '#74b9ff', secondary: '#0984e3', name: 'วันเสาร์ - Cloud Blue' }  // เสาร์
+        ];
+
+        // ตั้งค่าธีมสีประจำวัน
+        function setDailyTheme() {
+            const today = new Date().getDay();
+            const theme = dailyThemes[today];
+            
+            document.documentElement.style.setProperty('--primary-color', theme.primary);
+            document.documentElement.style.setProperty('--secondary-color', theme.secondary);
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                .text-purple-600 { color: ${theme.primary} !important; }
+                .bg-purple-600 { background-color: ${theme.primary} !important; }
+                .bg-purple-50 { background-color: ${theme.primary}20 !important; }
+                .border-purple-500 { border-color: ${theme.primary} !important; }
+                .focus\\:ring-purple-500:focus { --tw-ring-color: ${theme.primary} !important; }
+                input:checked + .slider { background: linear-gradient(135deg, ${theme.primary}, ${theme.secondary}) !important; }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // รีเซ็ตข้อมูล (ย้ายข้อมูลปัจจุบันไปเป็นข้อมูลเก่า)
+        function resetData() {
+            // ตรวจสอบโหมดออฟไลน์
+            if (!isOnlineMode) {
+                showErrorMessage('ไม่สามารถรีเซ็ตข้อมูลได้ในโหมดออฟไลน์! 📱');
+                return;
+            }
+            
+            if (confirm('คุณต้องการรีเซ็ตข้อมูลหรือไม่? ข้อมูลปัจจุบันจะถูกย้ายไปเป็นข้อมูลเก่าและจะไม่หาย')) {
+                // ย้ายข้อมูลปัจจุบันไปเป็นข้อมูลเก่า
+                oldSavingsData = [...oldSavingsData, ...savingsData];
+                localStorage.setItem('oldSavingsData', JSON.stringify(oldSavingsData));
+                
+                // รีเซ็ตข้อมูลปัจจุบัน
+                savingsData = [];
+                totalSavings = 0;
+                
+                // บันทึกข้อมูลใหม่
+                localStorage.setItem('savingsData', JSON.stringify(savingsData));
+                localStorage.setItem('totalSavings', totalSavings.toString());
+                
+                // อัพเดทหน้าจอ
+                updateTotalSavings();
+                updateRecentSavings();
+                updateCloudProgress();
+                updateChart();
+                
+                showSuccessMessage('รีเซ็ตข้อมูลเรียบร้อย! ข้อมูลเก่าถูกเก็บไว้แล้ว 🔄');
+            }
+        }
+
+        // ตรวจสอบสถานะออนไลน์/ออฟไลน์
+        function updateOnlineStatus() {
+            const offlineSection = document.getElementById('offlineSection');
+            const statusDot = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('connectionText');
+            
+            // อัพเดทสถานะในหน้าตั้งค่า
+            if (isOnlineMode) {
+                offlineSection.style.display = 'none';
+                statusDot.className = 'w-3 h-3 bg-green-500 rounded-full mr-3';
+                statusText.textContent = 'เชื่อมต่อแล้ว';
+            } else {
+                offlineSection.style.display = 'block';
+                statusDot.className = 'w-3 h-3 bg-amber-500 rounded-full mr-3';
+                statusText.textContent = 'โหมดออฟไลน์';
+            }
+            
+            // อัพเดทปุ่มและคำเตือนในหน้าต่างๆ
+            updateUIForOfflineMode();
+        }
+
+        // อัพเดท UI สำหรับโหมดออฟไลน์
+        function updateUIForOfflineMode() {
+            const saveButton = document.getElementById('saveButton');
+            const goalButton = document.getElementById('goalButton');
+            
+            const offlineWarning = document.getElementById('offlineWarning');
+            const goalOfflineWarning = document.getElementById('goalOfflineWarning');
+            
+            if (!isOnlineMode) {
+                // ปิดการใช้งานปุ่มและแสดงคำเตือน
+                if (saveButton) {
+                    saveButton.classList.add('opacity-50', 'cursor-not-allowed');
+                    saveButton.disabled = true;
+                }
+                if (goalButton) {
+                    goalButton.classList.add('opacity-50', 'cursor-not-allowed');
+                    goalButton.disabled = true;
+                }
+                
+                if (offlineWarning) offlineWarning.classList.remove('hidden');
+                if (goalOfflineWarning) goalOfflineWarning.classList.remove('hidden');
+            } else {
+                // เปิดการใช้งานปุ่มและซ่อนคำเตือน
+                if (saveButton) {
+                    saveButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                    saveButton.disabled = false;
+                }
+                if (goalButton) {
+                    goalButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                    goalButton.disabled = false;
+                }
+                
+                if (offlineWarning) offlineWarning.classList.add('hidden');
+                if (goalOfflineWarning) goalOfflineWarning.classList.add('hidden');
+            }
+        }
+
+        // อัพเดทเวลาปัจจุบัน
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            document.getElementById('currentDateTime').textContent = now.toLocaleDateString('th-TH', options);
+            
+            const updateDateElement = document.getElementById('updateDate');
+            if (updateDateElement) {
+                updateDateElement.textContent = `อัพเดทล่าสุด: ${now.toLocaleDateString('th-TH')}`;
+            }
+        }
+
+        // แสดงหน้า
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-purple-600');
+                btn.classList.add('text-gray-400');
+            });
+            
+            document.getElementById(page + '-page').classList.remove('hidden');
+            document.getElementById('nav-' + page).classList.remove('text-gray-400');
+            document.getElementById('nav-' + page).classList.add('text-purple-600');
+            
+            if (page === 'graph') {
+                updateChart();
+            } else if (page === 'goals') {
+                updateGoalsDisplay();
+            } else if (page === 'list') {
+                updateAllSavings();
+            }
+        }
+
+        // อัพเดทยอดเงินออมทั้งหมด
+        function updateTotalSavings() {
+            document.getElementById('totalSavings').textContent = '฿' + totalSavings.toLocaleString();
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString('th-TH');
+        }
+
+        // อัพเดทรายการออมล่าสุด
+        function updateRecentSavings() {
+            const container = document.getElementById('recentSavings');
+            
+            if (savingsData.length === 0) {
+                container.innerHTML = '<div class="text-gray-500 text-center py-4 font-medium">ยังไม่มีรายการออม</div>';
+                return;
+            }
+            
+            const recentItems = savingsData.slice(0, 5);
+            container.innerHTML = recentItems.map(item => `
+                <div class="flex justify-between items-center p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl border border-gray-100">
+                    <div>
+                        <div class="font-bold text-gray-800">฿${item.amount.toLocaleString()}</div>
+                        <div class="text-sm text-gray-600 font-medium">${item.category}</div>
+                    </div>
+                    <div class="text-xs text-gray-500 font-medium">${item.displayDate}</div>
+                </div>
+            `).join('');
+        }
+
+        // เปลี่ยนช่วงเวลากราฟ
+        function changeChartPeriod(period) {
+            currentPeriod = period;
+            
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            
+            document.getElementById(period + '-btn').classList.remove('bg-gray-200', 'text-gray-700');
+            document.getElementById(period + '-btn').classList.add('bg-purple-600', 'text-white');
+            
+            updateChart();
+        }
+
+        // อัพเดทกราฟ (แสดงข้อมูลเก่าและใหม่)
+        function updateChart() {
+            const ctx = document.getElementById('savingsChart').getContext('2d');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            const currentData = getChartData(currentPeriod, savingsData);
+            const oldData = getChartData(currentPeriod, oldSavingsData);
+            
+            currentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: currentData.labels,
+                    datasets: [
+                        {
+                            label: 'ข้อมูลเก่า (บาท)',
+                            data: oldData.data,
+                            backgroundColor: 'rgba(156, 163, 175, 0.6)',
+                            borderColor: 'rgba(156, 163, 175, 0.8)',
+                            borderWidth: 1,
+                            borderRadius: 8
+                        },
+                        {
+                            label: 'ข้อมูลปัจจุบัน (บาท)',
+                            data: currentData.data,
+                            backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            borderWidth: 1,
+                            borderRadius: 8
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '฿' + value.toLocaleString();
+                                },
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            updateStats();
+        }
+
+        // ได้ข้อมูลกราฟ
+        function getChartData(period, dataSource) {
+            const now = new Date();
+            const labels = [];
+            const data = [];
+            
+            if (period === 'day') {
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date(now);
+                    date.setDate(date.getDate() - i);
+                    const dateStr = date.toISOString().split('T')[0];
+                    
+                    labels.push(date.toLocaleDateString('th-TH', { weekday: 'short' }));
+                    
+                    const dayTotal = dataSource
+                        .filter(item => item.date.startsWith(dateStr))
+                        .reduce((sum, item) => sum + item.amount, 0);
+                    
+                    data.push(dayTotal);
+                }
+            } else if (period === 'week') {
+                for (let i = 3; i >= 0; i--) {
+                    const weekStart = new Date(now);
+                    weekStart.setDate(weekStart.getDate() - (i * 7) - weekStart.getDay());
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekEnd.getDate() + 6);
+                    
+                    labels.push(`สัปดาห์ ${4-i}`);
+                    
+                    const weekTotal = dataSource
+                        .filter(item => {
+                            const itemDate = new Date(item.date);
+                            return itemDate >= weekStart && itemDate <= weekEnd;
+                        })
+                        .reduce((sum, item) => sum + item.amount, 0);
+                    
+                    data.push(weekTotal);
+                }
+            } else if (period === 'month') {
+                for (let i = 5; i >= 0; i--) {
+                    const month = new Date(now);
+                    month.setMonth(month.getMonth() - i);
+                    
+                    labels.push(month.toLocaleDateString('th-TH', { month: 'short' }));
+                    
+                    const monthTotal = dataSource
+                        .filter(item => {
+                            const itemDate = new Date(item.date);
+                            return itemDate.getMonth() === month.getMonth() && 
+                                   itemDate.getFullYear() === month.getFullYear();
+                        })
+                        .reduce((sum, item) => sum + item.amount, 0);
+                    
+                    data.push(monthTotal);
+                }
+            }
+            
+            return { labels, data };
+        }
+
+        // อัพเดทสถิติ
+        function updateStats() {
+            const now = new Date();
+            
+            const thirtyDaysAgo = new Date(now);
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            const last30Days = savingsData.filter(item => new Date(item.date) >= thirtyDaysAgo);
+            const avgDaily = last30Days.reduce((sum, item) => sum + item.amount, 0) / 30;
+            
+            document.getElementById('avgDaily').textContent = '฿' + Math.round(avgDaily).toLocaleString();
+            
+            const thisMonthTotal = savingsData
+                .filter(item => {
+                    const itemDate = new Date(item.date);
+                    return itemDate.getMonth() === now.getMonth() && 
+                           itemDate.getFullYear() === now.getFullYear();
+                })
+                .reduce((sum, item) => sum + item.amount, 0);
+            
+            document.getElementById('thisMonth').textContent = '฿' + thisMonthTotal.toLocaleString();
+        }
+
+        // อัพเดทการแสดงเป้าหมาย
+        function updateGoalsDisplay() {
+            const container = document.getElementById('goalsList');
+            
+            if (goalsData.length === 0) {
+                container.innerHTML = '<div class="text-gray-500 text-center py-4 font-medium">ยังไม่มีเป้าหมาย</div>';
+                return;
+            }
+            
+            container.innerHTML = goalsData.map(goal => {
+                const progress = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
+                return `
+                    <div class="border border-gray-200 rounded-xl p-4 bg-gradient-to-r from-white to-blue-50">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-bold text-gray-800 tracking-tight">${goal.name}</h4>
+                            <button onclick="deleteGoal(${goal.id})" class="text-red-500 text-sm hover:bg-red-50 p-1 rounded">🗑️</button>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-2 font-semibold">
+                            <span>฿${goal.currentAmount.toLocaleString()}</span>
+                            <span>฿${goal.targetAmount.toLocaleString()}</span>
+                        </div>
+                        <div class="bg-gray-200 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-purple-500 to-blue-500 rounded-full h-2 transition-all duration-500" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1 font-semibold">${progress.toFixed(1)}% สำเร็จ</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ลบเป้าหมาย
+        function deleteGoal(goalId) {
+            // ตรวจสอบโหมดออฟไลน์
+            if (!isOnlineMode) {
+                showErrorMessage('ไม่สามารถลบเป้าหมายได้ในโหมดออฟไลน์! 📱');
+                return;
+            }
+            
+            if (confirm('คุณต้องการลบเป้าหมายนี้หรือไม่?')) {
+                goalsData = goalsData.filter(goal => goal.id !== goalId);
+                localStorage.setItem('goalsData', JSON.stringify(goalsData));
+                updateGoalsDisplay();
+                showSuccessMessage('ลบเป้าหมายเรียบร้อย! 🗑️');
+            }
+        }
+
+        // อัพเดท Cloud Progress
+        function updateCloudProgress() {
+            const cloudTarget = 10000;
+            const progress = Math.min((totalSavings / cloudTarget) * 100, 100);
+            
+            document.getElementById('cloudProgress').textContent = '฿' + totalSavings.toLocaleString();
+            document.getElementById('cloudProgressBar').style.width = progress + '%';
+        }
+
+        // อัพเดทความคืบหน้าเป้าหมาย
+        function updateGoalsInProgress() {
+            goalsData.forEach(goal => {
+                goal.currentAmount = Math.min(totalSavings, goal.targetAmount);
+            });
+            localStorage.setItem('goalsData', JSON.stringify(goalsData));
+        }
+
+        // แสดงข้อความสำเร็จ
+        function showSuccessMessage(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-xl shadow-lg z-50 font-bold tracking-tight';
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // แสดงข้อความผิดพลาด
+        function showErrorMessage(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-3 rounded-xl shadow-lg z-50 font-bold tracking-tight';
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // ตั้งค่า event listeners
+        function setupEventListeners() {
+            // บันทึกการออม
+            const savingsForm = document.getElementById('savingsForm');
+            if (savingsForm) {
+                savingsForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // ตรวจสอบโหมดออฟไลน์
+                    if (!isOnlineMode) {
+                        showErrorMessage('ไม่สามารถบันทึกได้ในโหมดออฟไลน์! 📱');
+                        return;
+                    }
+                    
+                    const amount = parseFloat(document.getElementById('amount').value);
+                    const category = document.getElementById('category').value;
+                    
+                    if (amount > 0 && category) {
+                        const saving = {
+                            id: Date.now(),
+                            amount: amount,
+                            category: category,
+                            date: new Date().toISOString(),
+                            displayDate: new Date().toLocaleDateString('th-TH')
+                        };
+                        
+                        savingsData.unshift(saving);
+                        totalSavings += amount;
+                        
+                        localStorage.setItem('savingsData', JSON.stringify(savingsData));
+                        localStorage.setItem('totalSavings', totalSavings.toString());
+                        
+                        updateTotalSavings();
+                        updateRecentSavings();
+                        updateCloudProgress();
+                        updateGoalsInProgress();
+                        
+                        document.getElementById('savingsForm').reset();
+                        
+                        showSuccessMessage('บันทึกการออมเรียบร้อย! 🎉');
+                    }
+                });
+            }
+
+            // เพิ่มเป้าหมาย
+            const goalForm = document.getElementById('goalForm');
+            if (goalForm) {
+                goalForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // ตรวจสอบโหมดออฟไลน์
+                    if (!isOnlineMode) {
+                        showErrorMessage('ไม่สามารถเพิ่มเป้าหมายได้ในโหมดออฟไลน์! 📱');
+                        return;
+                    }
+                    
+                    const name = document.getElementById('goalName').value;
+                    const amount = parseFloat(document.getElementById('goalAmount').value);
+                    
+                    if (name && amount > 0) {
+                        const goal = {
+                            id: Date.now(),
+                            name: name,
+                            targetAmount: amount,
+                            currentAmount: 0,
+                            createdDate: new Date().toISOString()
+                        };
+                        
+                        goalsData.push(goal);
+                        localStorage.setItem('goalsData', JSON.stringify(goalsData));
+                        
+                        updateGoalsDisplay();
+                        document.getElementById('goalForm').reset();
+                        
+                        showSuccessMessage('เพิ่มเป้าหมายเรียบร้อย! 🎯');
+                    }
+                });
+            }
+
+            // สวิทช์ออนไลน์/ออฟไลน์
+            const onlineSwitch = document.getElementById('onlineSwitch');
+            if (onlineSwitch) {
+                onlineSwitch.addEventListener('change', function() {
+                    isOnlineMode = this.checked;
+                    localStorage.setItem('isOnlineMode', JSON.stringify(isOnlineMode));
+                    
+                    updateOnlineStatus();
+                    
+                    if (isOnlineMode) {
+                        showSuccessMessage('เปิดโหมดออนไลน์แล้ว! 🌐');
+                    } else {
+                        showSuccessMessage('เปลี่ยนเป็นโหมดออฟไลน์ 📱');
+                    }
+                });
+            }
+        }
+
+        // ระบบ Dark Mode อัตโนมัติ
+        function checkAutoTheme() {
+            const now = new Date();
+            const hour = now.getHours();
+            
+            // 6 โมงเช้า (6) ถึง 1 ทุ่ม (13) = สว่าง
+            // หลัง 1 ทุ่ม (13) หรือก่อน 6 โมงเช้า = มืด
+            const shouldBeDark = hour >= 13 || hour < 6;
+            
+            if (shouldBeDark && !document.body.classList.contains('dark-mode')) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('isDarkMode', 'true');
+            } else if (!shouldBeDark && document.body.classList.contains('dark-mode')) {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('isDarkMode', 'false');
+            }
+        }
+
+        // อัพเดทรายการออมทั้งหมด
+        function updateAllSavings() {
+            const container = document.getElementById('allSavings');
+            
+            if (savingsData.length === 0) {
+                container.innerHTML = '<div class="text-gray-500 text-center py-4 font-medium">ยังไม่มีรายการออม</div>';
+                return;
+            }
+            
+            // เรียงลำดับจากใหม่ไปเก่า
+            const sortedData = [...savingsData].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            container.innerHTML = sortedData.map(item => `
+                <div class="flex justify-between items-center p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl border border-gray-100">
+                    <div class="flex-1">
+                        <div class="font-bold text-gray-800">฿${item.amount.toLocaleString()}</div>
+                        <div class="text-sm text-gray-600 font-medium">${item.category}</div>
+                        <div class="text-xs text-gray-500 font-medium">${item.displayDate}</div>
+                    </div>
+                    <button onclick="deleteSaving(${item.id})" class="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // ลบรายการออม
+        function deleteSaving(savingId) {
+            if (!isOnlineMode) {
+                showErrorMessage('ไม่สามารถลบรายการได้ในโหมดออฟไลน์! 📱');
+                return;
+            }
+            
+            if (confirm('คุณต้องการลบรายการนี้หรือไม่?')) {
+                const savingToDelete = savingsData.find(item => item.id === savingId);
+                if (savingToDelete) {
+                    // ลดยอดเงินออมทั้งหมด
+                    totalSavings -= savingToDelete.amount;
+                    
+                    // ลบรายการ
+                    savingsData = savingsData.filter(item => item.id !== savingId);
+                    
+                    // บันทึกข้อมูล
+                    localStorage.setItem('savingsData', JSON.stringify(savingsData));
+                    localStorage.setItem('totalSavings', totalSavings.toString());
+                    
+                    // อัพเดทหน้าจอ
+                    updateTotalSavings();
+                    updateAllSavings();
+                    updateCloudProgress();
+                    updateGoalsInProgress();
+                    
+                    showSuccessMessage('ลบรายการเรียบร้อย! 🗑️');
+                }
+            }
+        }
+
+        // เริ่มต้นแอป
+        function initApp() {
+            setDailyTheme();
+            
+            // ตรวจสอบ Dark Mode อัตโนมัติ
+            checkAutoTheme();
+            // ตรวจสอบทุก 30 วินาที
+            setInterval(checkAutoTheme, 30000);
+            
+            updateDateTime();
+            setInterval(updateDateTime, 60000);
+            
+            document.getElementById('onlineSwitch').checked = isOnlineMode;
+            updateOnlineStatus();
+            
+            setupEventListeners();
+            
+            updateTotalSavings();
+            updateRecentSavings();
+            updateAllSavings();
+            updateCloudProgress();
+            updateGoalsDisplay();
+            
+            const today = new Date().getDay();
+            const currentThemeElement = document.getElementById('currentTheme');
+            if (currentThemeElement) {
+                currentThemeElement.textContent = dailyThemes[today].name;
+            }
+            
+            showPage('home');
+        }
+
+        // เริ่มแอป
+        initApp();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972bea957327731d',t:'MTc1NTc5ODAzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
