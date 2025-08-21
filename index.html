@@ -836,6 +836,7 @@
             
             container.innerHTML = goalsData.map(goal => {
                 const progress = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
+                const isCompleted = progress >= 100;
                 return `
                     <div class="border border-gray-200 rounded-xl p-4 bg-gradient-to-r from-white to-blue-50">
                         <div class="flex justify-between items-start mb-2">
@@ -846,10 +847,24 @@
                             <span>฿${goal.currentAmount.toLocaleString()}</span>
                             <span>฿${goal.targetAmount.toLocaleString()}</span>
                         </div>
-                        <div class="bg-gray-200 rounded-full h-2">
+                        <div class="bg-gray-200 rounded-full h-2 mb-3">
                             <div class="bg-gradient-to-r from-purple-500 to-blue-500 rounded-full h-2 transition-all duration-500" style="width: ${progress}%"></div>
                         </div>
-                        <div class="text-xs text-gray-500 mt-1 font-semibold">${progress.toFixed(1)}% สำเร็จ</div>
+                        <div class="flex justify-between items-center">
+                            <div class="text-xs text-gray-500 font-semibold">${progress.toFixed(1)}% สำเร็จ ${isCompleted ? '🎉' : ''}</div>
+                            ${!isCompleted ? `
+                                <div class="flex items-center space-x-2">
+                                    <input type="number" id="deposit-${goal.id}" placeholder="จำนวน" class="w-20 px-2 py-1 text-xs border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500" min="1">
+                                    <button onclick="depositToGoal(${goal.id})" class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:shadow-lg transition-all">
+                                        💰 ฝาก
+                                    </button>
+                                </div>
+                            ` : `
+                                <div class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-lg text-xs font-bold">
+                                    ✅ สำเร็จแล้ว!
+                                </div>
+                            `}
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -871,6 +886,73 @@
             }
         }
 
+        // ฝากเงินเข้าเป้าหมาย
+        function depositToGoal(goalId) {
+            // ตรวจสอบโหมดออฟไลน์
+            if (!isOnlineMode) {
+                showErrorMessage('ไม่สามารถฝากเงินได้ในโหมดออฟไลน์! 📱');
+                return;
+            }
+            
+            const depositInput = document.getElementById(`deposit-${goalId}`);
+            const depositAmount = parseFloat(depositInput.value);
+            
+            if (!depositAmount || depositAmount <= 0) {
+                showErrorMessage('กรุณาใส่จำนวนเงินที่ถูกต้อง! 💰');
+                return;
+            }
+            
+            // หาเป้าหมายที่ต้องการฝาก
+            const goalIndex = goalsData.findIndex(goal => goal.id === goalId);
+            if (goalIndex === -1) {
+                showErrorMessage('ไม่พบเป้าหมายนี้! ❌');
+                return;
+            }
+            
+            const goal = goalsData[goalIndex];
+            const remainingAmount = goal.targetAmount - goal.currentAmount;
+            
+            if (depositAmount > remainingAmount) {
+                showErrorMessage(`จำนวนเงินเกินเป้าหมาย! เหลืออีก ฿${remainingAmount.toLocaleString()} 🎯`);
+                return;
+            }
+            
+            // ฝากเงินเข้าเป้าหมาย
+            goalsData[goalIndex].currentAmount += depositAmount;
+            
+            // บันทึกรายการออมใหม่
+            const saving = {
+                id: Date.now(),
+                amount: depositAmount,
+                category: `🎯 เป้าหมาย: ${goal.name}`,
+                date: new Date().toISOString(),
+                displayDate: new Date().toLocaleDateString('th-TH')
+            };
+            
+            savingsData.unshift(saving);
+            totalSavings += depositAmount;
+            
+            // บันทึกข้อมูล
+            localStorage.setItem('goalsData', JSON.stringify(goalsData));
+            localStorage.setItem('savingsData', JSON.stringify(savingsData));
+            localStorage.setItem('totalSavings', totalSavings.toString());
+            
+            // อัพเดทหน้าจอ
+            updateGoalsDisplay();
+            updateTotalSavings();
+            updateCloudProgress();
+            
+            // เคลียร์ช่องกรอก
+            depositInput.value = '';
+            
+            // ตรวจสอบว่าเป้าหมายสำเร็จหรือไม่
+            if (goalsData[goalIndex].currentAmount >= goal.targetAmount) {
+                showSuccessMessage(`🎉 ยินดีด้วย! เป้าหมาย "${goal.name}" สำเร็จแล้ว!`);
+            } else {
+                showSuccessMessage(`ฝากเงิน ฿${depositAmount.toLocaleString()} เข้าเป้าหมายเรียบร้อย! 💰`);
+            }
+        }
+
         // อัพเดท Cloud Progress
         function updateCloudProgress() {
             const cloudTarget = 10000;
@@ -880,12 +962,10 @@
             document.getElementById('cloudProgressBar').style.width = progress + '%';
         }
 
-        // อัพเดทความคืบหน้าเป้าหมาย
+        // อัพเดทความคืบหน้าเป้าหมาย (ไม่ใช้แล้วเพราะมีการฝากแยก)
         function updateGoalsInProgress() {
-            goalsData.forEach(goal => {
-                goal.currentAmount = Math.min(totalSavings, goal.targetAmount);
-            });
-            localStorage.setItem('goalsData', JSON.stringify(goalsData));
+            // ฟังก์ชันนี้ไม่ใช้แล้ว เพราะตอนนี้ฝากเงินเข้าเป้าหมายแยกแล้ว
+            // เก็บไว้เพื่อความเข้ากันได้กับโค้ดเก่า
         }
 
         // แสดงข้อความสำเร็จ
@@ -1123,5 +1203,5 @@
         // เริ่มแอป
         initApp();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972bea957327731d',t:'MTc1NTc5ODAzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972bf68154a24f52',t:'MTc1NTc5ODUyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
