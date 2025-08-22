@@ -166,11 +166,18 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(8px);
+            color: #000000 !important;
+            font-weight: 600;
         }
         .ai-input:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
             background: rgba(255, 255, 255, 1);
+            color: #000000 !important;
+        }
+        .ai-input::placeholder {
+            color: #6b7280 !important;
+            font-weight: 500;
         }
         .ai-card {
             border-radius: 20px;
@@ -205,6 +212,17 @@
         .ai-stat-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .calc-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .calc-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .calc-btn:active {
+            transform: translateY(0);
         }
     </style>
 </head>
@@ -244,6 +262,12 @@
                 </svg>
                 <span class="text-xs mt-1 font-medium">เป้าหมาย</span>
             </button>
+            <button onclick="showPage('calculator')" class="nav-btn flex flex-col items-center p-3 text-gray-400" id="nav-calculator">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-2h2v2zm0-4H7v-2h2v2zm0-4H7V7h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2zm4 8h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                </svg>
+                <span class="text-xs mt-1 font-medium">คิดเลข</span>
+            </button>
             <button onclick="showPage('settings')" class="nav-btn flex flex-col items-center p-3 text-gray-400" id="nav-settings">
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.82,11.69,4.82,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
@@ -267,7 +291,12 @@
 
             <!-- ฟอร์มออมเงิน -->
             <div class="ai-card p-6 card-shadow mb-6">
-                <h3 class="text-lg font-bold mb-4 text-gray-800 tracking-tight">✨ เพิ่มการออมเงิน</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-gray-800 tracking-tight">✨ เพิ่มการออมเงิน</h3>
+                    <button onclick="showPage('calculator')" class="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-2 rounded-xl font-bold text-sm hover:shadow-lg transition-all">
+                        🧮 เครื่องคิดเลข
+                    </button>
+                </div>
                 
                 <form id="savingsForm" class="space-y-4">
                     <div>
@@ -398,6 +427,62 @@
             </div>
         </div>
 
+        <!-- หน้าเครื่องคิดเลข -->
+        <div id="calculator-page" class="page px-4 hidden">
+            <div class="ai-card p-6 card-shadow">
+                <h2 class="text-lg font-bold mb-6 text-gray-800 tracking-tight">🧮 เครื่องคิดเลข</h2>
+                
+                <!-- หน้าจอแสดงผล -->
+                <div class="bg-gray-900 rounded-2xl p-6 mb-6">
+                    <div class="text-right">
+                        <div class="text-sm text-gray-400 font-medium mb-2" id="calcHistory">0</div>
+                        <div class="text-4xl text-white font-bold tracking-tight" id="calcDisplay">0</div>
+                    </div>
+                </div>
+                
+                <!-- ปุ่มเครื่องคิดเลข -->
+                <div class="grid grid-cols-4 gap-3">
+                    <!-- แถวที่ 1 -->
+                    <button onclick="clearCalculator()" class="calc-btn bg-red-500 hover:bg-red-600 text-white font-bold py-4 rounded-xl text-lg">C</button>
+                    <button onclick="deleteLast()" class="calc-btn bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-xl text-lg">⌫</button>
+                    <button onclick="inputOperator('/')" class="calc-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-xl text-lg">÷</button>
+                    <button onclick="inputOperator('*')" class="calc-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-xl text-lg">×</button>
+                    
+                    <!-- แถวที่ 2 -->
+                    <button onclick="inputNumber('7')" class="calc-btn bg-gray-200 hover:bg-gray-300 text-black font-bold py-4 rounded-xl text-lg">7</button>
+                    <button onclick="inputNumber('8')" class="calc-btn bg-gray-200 hover:bg-gray-300 text-black font-bold py-4 rounded-xl text-lg">8</button>
+                    <button onclick="inputNumber('9')" class="calc-btn bg-gray-200 hover:bg-gray-300 text-black font-bold py-4 rounded-xl text-lg">9</button>
+                    <button onclick="inputOperator('-')" class="calc-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-xl text-lg">−</button>
+                    
+                    <!-- แถวที่ 3 -->
+                    <button onclick="inputNumber('4')" class="calc-btn bg-gray-200 hover:bg-gray-300 text-black font-bold py-4 rounded-xl text-lg">4</button>
+                    <button onclick="inputNumber('5')" class="calc-btn bg-gray-200 hover:bg-gray-300 text-black font-bold py-4 rounded-xl text-lg">5</button>
+                    <button onclick="inputNumber('6')" class="calc-btn bg-gray-200 hover:bg-gray-300 text-black font-bold py-4 rounded-xl text-lg">6</button>
+                    <button onclick="inputOperator('+')" class="calc-btn bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-xl text-lg">+</button>
+                    
+                    <!-- แถวที่ 4 -->
+                    <button onclick="inputNumber('1')" class="calc-btn bg-gray-200 hover:bg-gray-300 text-black font-bold py-4 rounded-xl text-lg">1</button>
+                    <button onclick="inputNumber('2')" class="calc-btn bg-gray-200 hover:bg-gray-300 text-black font-bold py-4 rounded-xl text-lg">2</button>
+                    <button onclick="inputNumber('3')" class="calc-btn bg-gray-200 hover:bg-gray-300 text-black font-bold py-4 rounded-xl text-lg">3</button>
+                    <button onclick="calculate()" class="calc-btn bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-xl text-lg row-span-2">=</button>
+                    
+                    <!-- แถวที่ 5 -->
+                    <button onclick="inputNumber('0')" class="calc-btn bg-gray-200 hover:bg-gray-300 text-black font-bold py-4 rounded-xl text-lg col-span-2">0</button>
+                    <button onclick="inputNumber('.')" class="calc-btn bg-gray-200 hover:bg-gray-300 text-black font-bold py-4 rounded-xl text-lg">.</button>
+                </div>
+                
+                <!-- ปุ่มใช้ผลลัพธ์ -->
+                <div class="mt-6 space-y-3">
+                    <button onclick="useResultForSaving()" class="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold py-4 rounded-xl hover:shadow-lg transition-all">
+                        💰 ใช้ผลลัพธ์สำหรับออมเงิน
+                    </button>
+                    <button onclick="useResultForGoal()" class="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold py-4 rounded-xl hover:shadow-lg transition-all">
+                        🎯 ใช้ผลลัพธ์สำหรับเป้าหมาย
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- หน้าตั้งค่า -->
         <div id="settings-page" class="page px-4 hidden">
             <div class="ai-card p-6 card-shadow mb-6">
@@ -438,22 +523,14 @@
                     </div>
                 </div>
 
-                <!-- ธีมสีประจำวัน -->
-                <div class="py-4 border-b border-gray-100">
-                    <h3 class="font-semibold text-gray-800 mb-2 tracking-tight">🎨 ธีมประจำวัน</h3>
-                    <div class="flex items-center">
-                        <div class="w-4 h-4 rounded-full mr-3" style="background: var(--primary-color)"></div>
-                        <span class="text-sm text-gray-700 font-semibold" id="currentTheme">กำลังโหลด...</span>
-                    </div>
-                    <p class="text-xs text-gray-600 font-semibold">ธีมสีเปลี่ยนอัตโนมัติ</p>
-                </div>
+
 
                 <!-- เวอร์ชั่น -->
                 <div class="py-4">
                     <h3 class="font-semibold text-gray-800 mb-2 tracking-tight">🚀 เวอร์ชั่นปัจจุบัน</h3>
                     <div class="flex items-center justify-between">
-                        <span class="text-gray-700 font-bold">v2.5.0</span>
-                        <span class="text-xs bg-green-100 text-green-800 px-3 py-1 rounded-full font-bold">Text Enhanced</span>
+                        <span class="text-gray-700 font-bold">v2.6.0</span>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-bold">Calculator Added</span>
                     </div>
                     <p class="text-xs text-gray-600 font-semibold" id="updateDate">อัพเดทล่าสุด: วันนี้</p>
                 </div>
@@ -483,6 +560,12 @@
         let currentChart = null;
         let currentPeriod = 'day';
         let isOnlineMode = JSON.parse(localStorage.getItem('isOnlineMode')) !== false; // default true
+
+        // ตัวแปรเครื่องคิดเลข
+        let calcDisplay = '0';
+        let calcHistory = '';
+        let lastOperator = '';
+        let waitingForOperand = false;
 
         // ธีมสีประจำวัน (7 วัน) - AI Enhanced
         const dailyThemes = [
@@ -1208,17 +1291,126 @@
             updateCloudProgress();
             updateGoalsDisplay();
             
-            const today = new Date().getDay();
-            const currentThemeElement = document.getElementById('currentTheme');
-            if (currentThemeElement) {
-                currentThemeElement.textContent = dailyThemes[today].name;
-            }
+
             
             showPage('home');
+        }
+
+        // ฟังก์ชันเครื่องคิดเลข
+        function updateCalcDisplay() {
+            document.getElementById('calcDisplay').textContent = calcDisplay;
+            document.getElementById('calcHistory').textContent = calcHistory || '0';
+        }
+
+        function inputNumber(num) {
+            if (waitingForOperand) {
+                calcDisplay = num;
+                waitingForOperand = false;
+            } else {
+                calcDisplay = calcDisplay === '0' ? num : calcDisplay + num;
+            }
+            updateCalcDisplay();
+        }
+
+        function inputOperator(nextOperator) {
+            const inputValue = parseFloat(calcDisplay);
+
+            if (calcHistory === '') {
+                calcHistory = calcDisplay;
+            } else if (lastOperator) {
+                const currentValue = parseFloat(calcHistory);
+                const newValue = performCalculation(currentValue, inputValue, lastOperator);
+                
+                calcDisplay = String(newValue);
+                calcHistory = String(newValue);
+            }
+
+            waitingForOperand = true;
+            lastOperator = nextOperator;
+            calcHistory += ' ' + getOperatorSymbol(nextOperator) + ' ';
+            updateCalcDisplay();
+        }
+
+        function getOperatorSymbol(operator) {
+            switch(operator) {
+                case '+': return '+';
+                case '-': return '−';
+                case '*': return '×';
+                case '/': return '÷';
+                default: return operator;
+            }
+        }
+
+        function performCalculation(firstOperand, secondOperand, operator) {
+            switch (operator) {
+                case '+': return firstOperand + secondOperand;
+                case '-': return firstOperand - secondOperand;
+                case '*': return firstOperand * secondOperand;
+                case '/': return firstOperand / secondOperand;
+                default: return secondOperand;
+            }
+        }
+
+        function calculate() {
+            const inputValue = parseFloat(calcDisplay);
+
+            if (calcHistory !== '' && lastOperator) {
+                const currentValue = parseFloat(calcHistory.split(' ')[0]);
+                const newValue = performCalculation(currentValue, inputValue, lastOperator);
+                
+                calcDisplay = String(newValue);
+                calcHistory = '';
+                lastOperator = '';
+                waitingForOperand = true;
+                updateCalcDisplay();
+            }
+        }
+
+        function clearCalculator() {
+            calcDisplay = '0';
+            calcHistory = '';
+            lastOperator = '';
+            waitingForOperand = false;
+            updateCalcDisplay();
+        }
+
+        function deleteLast() {
+            if (calcDisplay.length > 1) {
+                calcDisplay = calcDisplay.slice(0, -1);
+            } else {
+                calcDisplay = '0';
+            }
+            updateCalcDisplay();
+        }
+
+        function useResultForSaving() {
+            const result = parseFloat(calcDisplay);
+            if (isNaN(result) || result <= 0) {
+                showErrorMessage('ผลลัพธ์ไม่ถูกต้องสำหรับการออมเงิน! 💰');
+                return;
+            }
+            
+            // ไปหน้าหลักและใส่ค่าในช่องจำนวนเงิน
+            showPage('home');
+            document.getElementById('amount').value = result;
+            showSuccessMessage(`ใส่จำนวน ฿${result.toLocaleString()} ในฟอร์มออมเงินแล้ว! 💰`);
+        }
+
+        function useResultForGoal() {
+            const result = parseFloat(calcDisplay);
+            if (isNaN(result) || result <= 0) {
+                showErrorMessage('ผลลัพธ์ไม่ถูกต้องสำหรับเป้าหมาย! 🎯');
+                return;
+            }
+            
+            // ไปหน้าเป้าหมายและใส่ค่าในช่องจำนวนเงินเป้าหมาย
+            showPage('goals');
+            document.getElementById('goalAmount').value = result;
+            showSuccessMessage(`ใส่จำนวน ฿${result.toLocaleString()} ในฟอร์มเป้าหมายแล้ว! 🎯`);
         }
 
         // เริ่มแอป
         initApp();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972f787a073f7337',t:'MTc1NTgzNTMwNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'973406469247ce5f',t:'MTc1NTg4MzA1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
